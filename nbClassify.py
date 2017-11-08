@@ -20,10 +20,10 @@ class NaiveBayes():
     Remainder of line is space-delimited text.
     '''
     vocab = dict()          # Stores the vocabulary nested according to cat.
-    classes = dict()        # Stores all the categories in the training document
-    avocab = dict()         # Stores all vocab. regardless of class
+    categories = dict()        # Stores all the categories in the training document
+    all_vocab = dict()         # Stores all vocab. regardless of class
 
-    classesprob = dict()    # Stores the probabilities of each cat.
+    categoriesprob = dict()    # Stores the probabilities of each cat.
     vocabprob = dict()      # Stores the probabilities of each vocab word in cat.
     vocSize = 0
     def __init__(self,train):
@@ -43,11 +43,11 @@ class NaiveBayes():
         # a dictionary
         with open(traindat,'r') as fd:
             for line in fd.readlines():
-                id,*words = line.split()
+                category,*words = line.split()
                 # Sees if dictionary key for 'post id' already exists,
                 # If not add it, if it does exist access the key-value
                 # pair and increment it
-                self.classes[id] = self.classes.get(id,0)+1
+                self.categories[category] = self.categories.get(category,0)+1
 
                 # Itereates through the words in the class id, and adds
                 # the word to the key 'class id', and if it already exists
@@ -56,13 +56,11 @@ class NaiveBayes():
                 # {"alt.atheism":{"atheism":3,"archive":10, ...}, ... }
                 for word in words:
                     # Collect and count total num of all unique words
-                    self.avocab[word] = self.avocab.get(word,0)+1
-                    if id not in self.vocab.keys():
-                        self.vocab[id] = {word:1}
+                    self.all_vocab[word] = self.all_vocab.get(word,0)+1
+                    if category not in self.vocab.keys():
+                        self.vocab[category] = {word:1}
                     else:
-                        self.vocab[id].update( {word:self.vocab[id].get(word,0)+1} )
-        print(self.classes)
-        print(self.vocab)
+                        self.vocab[category].update( {word:self.vocab[category].get(word,0)+1} )
         fd.close()
 
     ###################################
@@ -84,60 +82,51 @@ class NaiveBayes():
         results = dict()
         correct = 0
         total = 0
-        # Duplicate vocabulary to new dictionary for vocab probabilities
+        # Duplicate vocabulaies to store probabilities
         self.vocabprob = copy.deepcopy(self.vocab)  
-        # Duplicate classes to new dictionary for class probabilities
-        self.classesprob = self.classes.copy() 
-        # Calculate total number of classes
-        self.classTotal = len(self.classes.keys())  
-        # Calculate total vocabulary size
-        self.vocSize = len(self.avocab.values())      
+        self.categoriesprob = copy.deepcopy(self.categories)   
 
-        # Iterate through the classes in the vocabulary
-        for id in self.vocab:
-            # Calculate the P(Class), and store in ClassProb
-            #self.classesprob[id] = self.classes[id]/self.classTotal
+        # Calculate total number of categories and size
+        self.classTotal = len(self.categories.keys())  
+        self.vocSize = len(self.all_vocab.values())
+        print("classTotal "+str(self.classTotal))
+        print("vocsize    "+str(self.vocSize))
 
-            # Compute total num. of vocab words in 'Class', denominator of mest
-            n_vocab_in_id = sum(self.vocab[id].values())
-            # Iterate through the words in the vocabulary dicitonary by 'Class'
-            for word in self.vocab[id]:
-                #print("P("+word+"|"+id+") = "+str(self.vocab[id][word]+1)+"/"+str(n_vocab_in_id))
-                # No. of times word is found in postid
-                n_word = self.vocab[id][word]
-                # Number of occurences smoothed by 1
-                p_word_in_cat = (n_word+1)/(n_vocab_in_id+self.vocSize)
-                # Return the result, and multiply by porportion
-                # (# of times seen word)/(# of times word)
-                self.vocabprob[id][word]=math.log(p_word_in_cat*(self.classTotal/n_vocab_in_id+1))
+        # Calculate probabilities
+        for category in self.categories:
+            # Calculate the probability of a P(Category)
+            self.categoriesprob[category] = self.categories.get(category,1)/sum(self.categories.values())
+            for word in self.vocab[category]:
+                # Calculate P(word|category)
+                num_word_in_cat = self.vocab[category][word]
+                num_tot_words_in_cat = sum(self.vocab[category].values())
+                #print("P("+word+"|"+category+") = "+str(num_word_in_cat)+"/"+str(num_tot_words_in_cat))
+                self.vocabprob[category][word] = num_word_in_cat/num_tot_words_in_cat
 
+        # Counter to test number of correct, and total
+        correct = 0
+        total = 0
+
+        # Dict to store results
+        results = dict()
+        # Now open file, and test trained data
         with open(testdat,'r') as fd:
-            # Increment through lines in the training files
             for line in fd.readlines():
-                total+=1    # Increment total test by 1
-                id,*words = line.split()
-                # Iterate through all classes P(idClass)
-                for idClass in self.classes:
-                    # Get probability of P(idClass)
-                    nbProb = self.classesprob[idClass]
-                    # Get dict that stores prob. of P(word|idClass)
-                    _class = self.vocabprob[idClass]
-                    n_vocab_in_id = sum(self.vocab[idClass].values())
-                    # Get P(word|classID)
-                    # Iterate through all the words in the training set
+                total += 1 # Increment counter by 1
+                r_category, *words = line.split() # split testing into category and words
+                # Iterate through categories of vocabulary
+                for category in self.categories:
+                    # Fetch the P(C)
+                    prob_category = self.categoriesprob[category]
+                    prob_category_word = prob_category
+                    # Now calculate P(C|W1,W2,W3...) = P(C)P(W1|C)P(W2|C)P(W3|C)...
                     for word in words:
-                        # Either get probability of P(word|class) or smooth out to
-                        # 1/# of words in class
-                        _vocabp = _class.get(word,(1/n_vocab_in_id))       
-                        # Multiply P(classId)*P(word_n|idclass_n)
-                        #print("P("+word+"|"+idClass+")" +" = "+str(_vocabp))
-                        nbProb+=_vocabp
-                    results.update({idClass:nbProb})
-                    #print("idclass "+idClass+" :"+str(_vocabp))
+                        prob_category_word *= self.vocabprob[category].get(word,1)
+                    #print("P("+category+"|"+word+") = "+str(prob_category_word))
+                    results.update({category:prob_category_word})
                 result = max(results, key=results.get)  # Get the NB Assumption
-                if result == id:
-                    correct += 1    # NB Guessed correctly, increment by 1
-        #print(results)
+                if result == r_category:
+                    correct += 1
         print("correct "+str(correct))
         print("total   "+str(total))
         print("Percent Correct: "+str(round((correct/total)*100,2))+"%")
@@ -153,11 +142,11 @@ class NaiveBayes():
         total = 0
 
         # Calculate total vocabulary size
-        self.classesprob = self.classes.copy() 
-        for _class in self.classes:
-            self.classesprob[_class] = self.classes[_class]/sum(self.classes.values())
+        self.categories = self.categories.copy() 
+        for _class in self.categories:
+            self.classesprob[_class] = self.categories[_class]/sum(self.categories.values())
 
-        self.vocSize = len(self.avocab.keys())     
+        self.vocSize = len(self.all_vocab.keys())     
 
         with open(testdat,'r') as fd:
             for line in fd.readlines():
@@ -165,7 +154,7 @@ class NaiveBayes():
                 id, *words = line.split()
 
                 for _id in self.vocab:
-                    id_prob = self.classesprob[_id]
+                    id_prob = self.categories[_id]
                     for word in words:
                         #print("id prob "+_id+":"+str(id_prob))
                         n_k_num = self.vocab[_id].get(word,0)+1
@@ -191,14 +180,13 @@ class NaiveBayes():
         total = 0
         # Duplicate vocabulary to new dictionary for vocab probabilities
         self.vocabprob = copy.deepcopy(self.vocab)  
-        # Duplicate classes to new dictionary for class probabilities
-        self.classesprob = self.classes.copy() 
-        # Calculate total number of classes
-        self.classTotal = len(self.classes.keys())  
+        # Duplicate categories to new dictionary for class probabilities
+        self.classesprob = self.categories.copy() 
+        # Calculate total number of categories
+        self.classTotal = len(self.categories.keys())  
         # Calculate total vocabulary size
-        self.vocSize = len(self.avocab.values())      
-
-        # Iterate through the classes in the vocabulary
+        self.vocSize = len(self.all_vocab.values())
+        # Iterate through the categories in the vocabulary
         for id in self.vocab:
             # Calculate the P(Class), and store in ClassProb
             #self.classesprob[id] = self.classes[id]/self.classTotal
