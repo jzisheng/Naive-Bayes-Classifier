@@ -64,7 +64,7 @@ class NaiveBayes():
         fd.close()
 
     ###################################
-    # Launch testing
+    # Launch appropiate testing version
     ###################################
     def test(self,testdat,version):
         if version ==  0:
@@ -76,9 +76,9 @@ class NaiveBayes():
             self.tfidf_test(testdat)
 
     ###################################
-    # Function(s) for tfidf estimation
+    # Naive Bayes Raw Classification
     ###################################
-    def tfidf_test(self,testdat):
+    def raw_test(self,testdat):
         results = dict()
         correct = 0
         total = 0
@@ -89,8 +89,8 @@ class NaiveBayes():
         # Calculate total number of categories and size
         self.classTotal = len(self.categories.keys())  
         self.vocSize = len(self.all_vocab.values())
-        print("classTotal "+str(self.classTotal))
-        print("vocsize    "+str(self.vocSize))
+        #print("classTotal "+str(self.classTotal))
+        #print("vocsize    "+str(self.vocSize))
 
         # Calculate probabilities
         for category in self.categories:
@@ -121,17 +121,17 @@ class NaiveBayes():
                     prob_category_word = prob_category
                     # Now calculate P(C|W1,W2,W3...) = P(C)P(W1|C)P(W2|C)P(W3|C)...
                     for word in words:
-                        prob_category_word *= self.vocabprob[category].get(word,1)
+                        # Gets the probability of word in category, otherwise returns 0
+                        prob_category_word *= self.vocabprob[category].get(word,0)
                     #print("P("+category+"|"+word+") = "+str(prob_category_word))
                     results.update({category:prob_category_word})
-                result = max(results, key=results.get)  # Get the NB Assumption
+                result = max(results, key=results.get)  # Get the NB Assumption of max Prob.
                 if result == r_category:
                     correct += 1
         print("correct "+str(correct))
         print("total   "+str(total))
         print("Percent Correct: "+str(round((correct/total)*100,2))+"%")
         print("=====")
-
 
     ###################################
     # Function for m-estimation of class
@@ -140,101 +140,128 @@ class NaiveBayes():
         results = dict()
         correct = 0
         total = 0
+        # Duplicate vocabulaies to store probabilities
+        self.vocabprob = copy.deepcopy(self.vocab)  
+        self.categoriesprob = copy.deepcopy(self.categories)   
 
-        # Calculate total vocabulary size
-        self.categories = self.categories.copy() 
-        for _class in self.categories:
-            self.classesprob[_class] = self.categories[_class]/sum(self.categories.values())
+        # Calculate total number of categories and size
+        self.classTotal = len(self.categories.keys())  
+        self.vocSize = len(self.all_vocab.values())
+        #print("classTotal "+str(self.classTotal))
+        #print("vocsize    "+str(self.vocSize))
 
-        self.vocSize = len(self.all_vocab.keys())     
+        # Calculate probabilities
+        for category in self.categories:
+            # Calculate the probability of a P(Category)
+            self.categoriesprob[category] = self.categories.get(category,1)/(sum(self.categories.values()))
+            for word in self.vocab[category]:
+                # Calculate P(word|category)
+                num_word_in_cat = 1+self.vocab[category][word]
+                num_tot_words_in_cat = sum(self.vocab[category].values())+self.vocSize
+                #print("P("+word+"|"+category+") = "+str(num_word_in_cat)+"/"+str(num_tot_words_in_cat))
+                self.vocabprob[category][word] = num_word_in_cat/num_tot_words_in_cat
 
+        # Counter to test number of correct, and total
+        correct = 0
+        total = 0
+
+        # Dict to store results
+        results = dict()
+        # Now open file, and test trained data
         with open(testdat,'r') as fd:
             for line in fd.readlines():
                 total += 1 # Increment counter by 1
-                id, *words = line.split()
-
-                for _id in self.vocab:
-                    id_prob = self.categories[_id]
+                r_category, *words = line.split() # split testing into category and words
+                # Iterate through categories of vocabulary
+                for category in self.categories:
+                    # Fetch the P(C)
+                    prob_category = self.categoriesprob[category]
+                    # Number of words in category + vocabulary size
+                    denom_mest = self.vocSize+sum(self.vocab[category].values())
+                    # Being calculation of P(C)
+                    prob_category_word = prob_category
+                    # Now calculate P(C|W1,W2,W3...) = P(C)P(W1|C)P(W2|C)P(W3|C)...
                     for word in words:
-                        #print("id prob "+_id+":"+str(id_prob))
-                        n_k_num = self.vocab[_id].get(word,0)+1
-                        n_v_denom = sum(self.vocab[_id].values())+self.vocSize
-                        #print("P("+word+"|"+_id+")="+str(n_k_num)+"/"+str(n_v_denom))
-                        id_prob *= (n_k_num)/n_v_denom
-                    results.update({_id:id_prob})
-                result = max(results, key=results.get)  # Get the NB Assumption
-                if result == id:
-                    correct += 1    # NB Guessed correctly, increment by 1'''
-
+                        prob_category_word *= self.vocabprob[category].get(word,1/denom_mest)
+                    #print("P("+category+"|"+word+") = "+str(prob_category_word))
+                    results.update({category:prob_category_word})
+                result = max(results, key=results.get)  # Get the NB Assumption of max Prob.
+                if result == r_category:
+                    correct += 1
         print("correct "+str(correct))
         print("total   "+str(total))
         print("Percent Correct: "+str(round((correct/total)*100,2))+"%")
         print("=====")
 
     ###################################
-    # Naive Bayes Raw Classification
+    # Function(s) for tfidf estimation
     ###################################
-    def raw_test(self,testdat):
+    def tfidf_test(self,testdat):
         results = dict()
         correct = 0
         total = 0
-        # Duplicate vocabulary to new dictionary for vocab probabilities
+        # Duplicate vocabulaies to store probabilities
         self.vocabprob = copy.deepcopy(self.vocab)  
-        # Duplicate categories to new dictionary for class probabilities
-        self.classesprob = self.categories.copy() 
-        # Calculate total number of categories
+        self.categoriesprob = copy.deepcopy(self.categories)   
+
+        # Calculate total number of categories and size
         self.classTotal = len(self.categories.keys())  
-        # Calculate total vocabulary size
         self.vocSize = len(self.all_vocab.values())
-        # Iterate through the categories in the vocabulary
-        for id in self.vocab:
-            # Calculate the P(Class), and store in ClassProb
-            #self.classesprob[id] = self.classes[id]/self.classTotal
+        #print("classTotal "+str(self.classTotal))
+        #print("vocsize    "+str(self.vocSize))
+        # Number of categories word is contained in
+        n_cat_contain_voc = dict()
 
-            # Compute total num. of vocab words in 'Class', denominator of mest
-            n_vocab_in_id = sum(self.vocab[id].values())+self.vocSize
-            # Iterate through the words in the vocabulary dicitonary by 'Class'
-            for word in self.vocab[id]:
-                #print("P("+word+"|"+id+") = "+str(self.vocab[id][word]+1)+"/"+str(n_vocab_in_id))
-                # No. of times word is found in postid
-                p_word = self.vocab[id][word]
-                # Number of occurences smoothed by 1
-                p_word_in_cat = (p_word+1)/((n_vocab_in_id))
-                # Return the result
-                self.vocabprob[id][word]=p_word_in_cat
-
+        # Calculate probabilities
+        for category in self.categories:
+            # Calculate the probability of a P(Category)
+            self.categoriesprob[category] = self.categories.get(category,1)/sum(self.categories.values())
+            for word in self.vocab[category]:
+                # Calculate P(word|category)
+                n_cat_contain_voc = {word:self.vocabprob.get(word,0)+1}
+                num_word_in_cat = 1+self.vocab[category][word]
+                num_tot_words_in_cat = sum(self.vocab[category].values())+self.vocSize
+                #print("P("+word+"|"+category+") = "+str(num_word_in_cat)+"/"+str(num_tot_words_in_cat))
+                self.vocabprob[category][word] = (num_word_in_cat/num_tot_words_in_cat)
+        print(n_cat_contain_voc)
+        
+        # Counter to test number of correct, and total
+        correct = 0
+        total = 0
+        # Dict to store results
+        results = dict()
+        
+        # Counter for categories containing word in it
+        # Open file, and test trained data
         with open(testdat,'r') as fd:
-            # Increment through lines in the training files
             for line in fd.readlines():
-                total+=1    # Increment total test by 1
-                id,*words = line.split()
-                # Iterate through all classes P(idClass)
-                for idClass in self.classes:
-                    # Get probability of P(idClass)
-                    nbProb = self.classesprob[idClass]
-                    # Get dict that stores prob. of P(word|idClass)
-                    _class = self.vocabprob[idClass]
-                    n_vocab_in_id = sum(self.vocab[idClass].values())
-                    # Get P(word|classID)
-                    # Iterate through all the words in the training set
+                total += 1 # Increment counter by 1
+                r_category, *words = line.split() # split testing into category and words
+                # Iterate through categories of vocabulary
+                for category in self.categories:
+                    # Fetch the P(C)
+                    prob_category = self.categoriesprob[category]
+                    prob_category_word = prob_category
+                    # Number of words in category + vocabulary size
+                    denom_mest = self.vocSize+sum(self.vocab[category].values())
+                    # Now calculate P(C|W1,W2,W3...) = P(C)P(W1|C)P(W2|C)P(W3|C)...
                     for word in words:
-                        # Either get probability of P(word|class) or smooth out to
-                        # 1/# of words in class
-                        _vocabp = _class.get(word,(1/n_vocab_in_id))       
-                        # Multiply P(classId)*P(word_n|idclass_n)
-
-                        #print("P("+word+"|"+idClass+")" +" = "+str(_vocabp))
-                        nbProb*=_vocabp
-                    results.update({idClass:nbProb})
-                    #print("idclass "+idClass+" :"+str(_vocabp))
-                result = max(results, key=results.get)  # Get the NB Assumption
-                if result == id:
-                    correct += 1    # NB Guessed correctly, increment by 1
-        #print(results)
+                        if word in self.vocabprob[word]:
+                            prob_category_word *= self.vocabprob[category][word]
+                        else:
+                            prob_category_word *= 1/sum(self.categories.values())+denom_mest
+                    #print("P("+category+"|"+word+") = "+str(prob_category_word))
+                    # Multiply by idf
+                    
+                    results.update({category:prob_category_word})
+                result = max(results, key=results.get)  # Get the NB Assumption of max Prob.
+                if result == r_category:
+                    correct += 1
         print("correct "+str(correct))
         print("total   "+str(total))
         print("Percent Correct: "+str(round((correct/total)*100,2))+"%")
         print("=====")
+    
 
 
 def argmax(lst):
