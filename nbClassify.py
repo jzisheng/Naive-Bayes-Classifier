@@ -132,12 +132,10 @@ class NaiveBayes():
                     #print("P("+category+"|"+word+") = "+str(prob_category_word))
                     results.update({category:prob_category_word})
                 result = max(results, key=results.get)  # Get the NB Assumption of max Prob.
-                if result == r_category:
-                    correct += 1
-        print("correct "+str(correct))
-        print("total   "+str(total))
-        print("Percent Correct: "+str(round((correct/total)*100,2))+"%")
-        print("=====")
+                # Updates testing result outputs for output
+                # {category: [NCorrect][Total N]}
+                self.generate_test_outputs(result,r_category)
+        self.print_test_outputs()
 
     ###################################
     # Function for m-estimation of class
@@ -189,15 +187,13 @@ class NaiveBayes():
                     # Now calculate P(C|W1,W2,W3...) = P(C)P(W1|C)P(W2|C)P(W3|C)...
                     for word in words:
                         prob_category_word *= self.vocabprob[category].get(word,1/denom_mest)
-                    print("P("+category+"|"+word+") = "+str(prob_category_word))
+                    #print("P("+category+"|"+word+") = "+str(prob_category_word))
                     results.update({category:prob_category_word})
                 result = max(results, key=results.get)  # Get the NB Assumption of max Prob.
-                if result == r_category:
-                    correct += 1
-        print("correct "+str(correct))
-        print("total   "+str(total))
-        print("Percent Correct: "+str(round((correct/total)*100,2))+"%")
-        print("=====")
+                # Updates testing result outputs for output
+                # {category: [NCorrect][Total N]}
+                self.generate_test_outputs(result,r_category)
+        self.print_test_outputs()
 
     ###################################
     # Function(s) for tfidf estimation
