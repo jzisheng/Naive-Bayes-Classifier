@@ -1,5 +1,9 @@
-c chinese chinese chinese tokyo s
-c macao japan
-c macao chinese
-j tokyo japan chinese 
-j japan tokyo
+china chinese chinese chinese tokyo s
+china macao japan
+china macao chinese
+japan tokyo japan chinese 
+japan japan tokyo
+america new york hamburger
+america new york hamburger apple
+america big apple new york
+america texas new hamburger

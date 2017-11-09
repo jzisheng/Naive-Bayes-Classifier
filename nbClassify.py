@@ -73,12 +73,16 @@ class NaiveBayes():
     # Launch appropiate testing version
     ###################################
     def test(self,testdat,version):
+        print("testing")
         if version ==  0:
             # Default test version
+            print("raw")
             self.raw_test(testdat)
         elif version ==  1:
+            print("mest")
             self.mest_test(testdat)
         elif version ==  2:
+            print("tfidf")
             self.tfidf_test(testdat)
 
     ###################################
@@ -141,6 +145,7 @@ class NaiveBayes():
     # Function for m-estimation of class
     ###################################
     def mest_test(self,testdat):
+        print("MEST")
         results = dict()
         correct = 0
         total = 0
@@ -157,7 +162,7 @@ class NaiveBayes():
         # Calculate probabilities
         for category in self.categories:
             # Calculate the probability of a P(Category)
-            self.categoriesprob[category] = self.categories.get(category,1)/(sum(self.categories.values()))
+            self.categoriesprob[category] = self.categories[category]/(sum(self.categories.values()))
             for word in self.vocab[category]:
                 # Calculate P(word|category)
                 num_word_in_cat = self.vocab[category][word]+1
@@ -171,6 +176,8 @@ class NaiveBayes():
 
         # Dict to store results
         results = dict()
+
+        print("testing trained data")
         # Now open file, and test trained data
         with open(testdat,'r') as fd:
             for line in fd.readlines():
@@ -183,10 +190,10 @@ class NaiveBayes():
                     # Number of words in category + vocabulary size
                     denom_mest = self.vocSize+sum(self.vocab[category].values())
                     # Being calculation of P(C)
-                    prob_category_word = prob_category
+                    prob_category_word = math.log(prob_category)
                     # Now calculate P(C|W1,W2,W3...) = P(C)P(W1|C)P(W2|C)P(W3|C)...
                     for word in words:
-                        prob_category_word *= self.vocabprob[category].get(word,1/denom_mest)
+                        prob_category_word += math.log(self.vocabprob[category].get(word,1/denom_mest))
                     #print("P("+category+"|"+word+") = "+str(prob_category_word))
                     results.update({category:prob_category_word})
                 result = max(results, key=results.get)  # Get the NB Assumption of max Prob.
@@ -241,7 +248,7 @@ class NaiveBayes():
                 for category in self.categories:
                     # Fetch the P(C)
                     prob_category = self.categoriesprob[category]
-                    prob_category_word = prob_category
+                    prob_category_word = math.log(prob_category)
                     # Number of words in category + vocabulary size
                     denom_mest = self.vocSize+sum(self.vocab[category].values())
                     # Now calculate P(C|W1,W2,W3...) = P(C)P(W1|C)P(W2|C)P(W3|C)...
@@ -250,7 +257,7 @@ class NaiveBayes():
                         idf = self.categoryTotal/self.n_cat_contain_voc.get(word,self.categoryTotal)
                         # If the word does not exist in the category, return this:
                         dne_prob = (1/denom_mest)
-                        prob_category_word *= (self.vocabprob[category].get(word,dne_prob)*(idf))
+                        prob_category_word += math.log(self.vocabprob[category].get(word,dne_prob)*(idf))
                     #print("P("+category+"|"+word+") = "+str(prob_category_word))
                     results.update({category:prob_category_word})
                 result = max(results, key=results.get)  # Get the NB Assumption of max Prob.
@@ -290,8 +297,7 @@ def main():
     # Dict key-value for which version to use
     versions = {"raw":0,"mest":1,"tfidf":2}
     nbclassifier = NaiveBayes(sys.argv[1])
-    #nbclassifier.test(sys.argv[2],versions.get(sys.argv[3],0))
-    nbclassifier.test(sys.argv[2],versions.get(sys.argv[3],0))
+    nbclassifier.test(sys.argv[2],versions.get(sys.argv[3]))
 
 if __name__ == "__main__":
     main()

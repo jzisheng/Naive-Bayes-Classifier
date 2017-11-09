@@ -1,5 +1,8 @@
-c chinese beijing chinese
-c chinese chinese shanghai
-c chinese macao
-j tokyo japan chinese 
-j tokyo japan
+china chinese beijing chinese
+china chinese chinese shanghai
+china chinese macao
+china beijing macao
+china chinese japan
+japan tokyo japan chinese 
+japan tokyo japan
+america hamburger chinese new
