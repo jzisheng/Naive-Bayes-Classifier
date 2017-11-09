@@ -1,1 +1,5 @@
-c chinese chinese chinese tokyo japan
+c chinese chinese chinese tokyo s
+c macao japan
+c macao chinese
+j tokyo japan chinese 
+j japan tokyo

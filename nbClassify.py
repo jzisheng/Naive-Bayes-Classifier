@@ -13,6 +13,7 @@ import math
 import copy
 import operator
 
+
 class NaiveBayes():
     '''Naive Bayes classifier for text data.
     Assumes input text is one text sample per line.  
@@ -26,6 +27,11 @@ class NaiveBayes():
     categoriesprob = dict()    # Stores the probabilities of each cat.
     vocabprob = dict()      # Stores the probabilities of each vocab word in cat.
     vocSize = 0
+
+    testoutputs = dict()    # Stores the outputs of tests and train
+    trainoutputs = dict()
+
+    n_cat_contain_voc = dict()  # Number of categories that contain vocab
     def __init__(self,train):
         '''Create classifier using train, the name of an input
         training file.
@@ -87,7 +93,7 @@ class NaiveBayes():
         self.categoriesprob = copy.deepcopy(self.categories)   
 
         # Calculate total number of categories and size
-        self.classTotal = len(self.categories.keys())  
+        self.categoryTotal = len(self.categories.keys())  
         self.vocSize = len(self.all_vocab.values())
         #print("classTotal "+str(self.classTotal))
         #print("vocsize    "+str(self.vocSize))
@@ -156,7 +162,7 @@ class NaiveBayes():
             self.categoriesprob[category] = self.categories.get(category,1)/(sum(self.categories.values()))
             for word in self.vocab[category]:
                 # Calculate P(word|category)
-                num_word_in_cat = 1+self.vocab[category][word]
+                num_word_in_cat = self.vocab[category][word]+1
                 num_tot_words_in_cat = sum(self.vocab[category].values())+self.vocSize
                 #print("P("+word+"|"+category+") = "+str(num_word_in_cat)+"/"+str(num_tot_words_in_cat))
                 self.vocabprob[category][word] = num_word_in_cat/num_tot_words_in_cat
@@ -183,7 +189,7 @@ class NaiveBayes():
                     # Now calculate P(C|W1,W2,W3...) = P(C)P(W1|C)P(W2|C)P(W3|C)...
                     for word in words:
                         prob_category_word *= self.vocabprob[category].get(word,1/denom_mest)
-                    #print("P("+category+"|"+word+") = "+str(prob_category_word))
+                    print("P("+category+"|"+word+") = "+str(prob_category_word))
                     results.update({category:prob_category_word})
                 result = max(results, key=results.get)  # Get the NB Assumption of max Prob.
                 if result == r_category:
@@ -202,39 +208,37 @@ class NaiveBayes():
         total = 0
         # Duplicate vocabulaies to store probabilities
         self.vocabprob = copy.deepcopy(self.vocab)  
-        self.categoriesprob = copy.deepcopy(self.categories)   
+        self.categoriesprob = dict(self.categories)
+        self.n_cat_contain_voc = dict.fromkeys(dict(self.all_vocab),0)
 
         # Calculate total number of categories and size
-        self.classTotal = len(self.categories.keys())  
+        self.categoryTotal = len(self.categories)
         self.vocSize = len(self.all_vocab.values())
-        #print("classTotal "+str(self.classTotal))
+        #print("categoryTotal "+str(self.categoryTotal))
         #print("vocsize    "+str(self.vocSize))
-        # Number of categories word is contained in
-        n_cat_contain_voc = dict()
-
         # Calculate probabilities
         for category in self.categories:
             # Calculate the probability of a P(Category)
             self.categoriesprob[category] = self.categories.get(category,1)/sum(self.categories.values())
+            #print(category+" : "+str(self.vocab[category]))
             for word in self.vocab[category]:
+                self.n_cat_contain_voc[word] += 1
                 # Calculate P(word|category)
-                n_cat_contain_voc = {word:self.vocabprob.get(word,0)+1}
-                num_word_in_cat = 1+self.vocab[category][word]
+                num_word_in_cat = self.vocab[category][word]+1
                 num_tot_words_in_cat = sum(self.vocab[category].values())+self.vocSize
-                #print("P("+word+"|"+category+") = "+str(num_word_in_cat)+"/"+str(num_tot_words_in_cat))
                 self.vocabprob[category][word] = (num_word_in_cat/num_tot_words_in_cat)
-        print(n_cat_contain_voc)
-        
+                #self.vocabprob[category][word] = (num_word_in_cat/num_tot_words_in_cat)*(self.categoryTotal/self.n_cat_contain_voc[word])
         # Counter to test number of correct, and total
         correct = 0
         total = 0
-        # Dict to store results
-        results = dict()
-        
+
         # Counter for categories containing word in it
         # Open file, and test trained data
         with open(testdat,'r') as fd:
+            # String for storing the correct category
             for line in fd.readlines():
+                # Dict to store results
+                results = dict()
                 total += 1 # Increment counter by 1
                 r_category, *words = line.split() # split testing into category and words
                 # Iterate through categories of vocabulary
@@ -246,23 +250,39 @@ class NaiveBayes():
                     denom_mest = self.vocSize+sum(self.vocab[category].values())
                     # Now calculate P(C|W1,W2,W3...) = P(C)P(W1|C)P(W2|C)P(W3|C)...
                     for word in words:
-                        if word in self.vocabprob[word]:
-                            prob_category_word *= self.vocabprob[category][word]
-                        else:
-                            prob_category_word *= 1/sum(self.categories.values())+denom_mest
+                        # Calculate idf
+                        idf = self.categoryTotal/self.n_cat_contain_voc.get(word,self.categoryTotal)
+                        # If the word does not exist in the category, return this:
+                        dne_prob = (1/denom_mest)
+                        prob_category_word *= (self.vocabprob[category].get(word,dne_prob)*(idf))
                     #print("P("+category+"|"+word+") = "+str(prob_category_word))
-                    # Multiply by idf
-                    
                     results.update({category:prob_category_word})
                 result = max(results, key=results.get)  # Get the NB Assumption of max Prob.
-                if result == r_category:
-                    correct += 1
-        print("correct "+str(correct))
-        print("total   "+str(total))
-        print("Percent Correct: "+str(round((correct/total)*100,2))+"%")
-        print("=====")
-    
+                # Updates testing result outputs for output
+                # {category: [NCorrect][Total N]}
+                self.generate_test_outputs(result,r_category)
+        self.print_test_outputs()
 
+    def generate_test_outputs(self,result,r_category):
+        if result == r_category and not(r_category in self.testoutputs):
+            # Testing result was correct, and category not tracked before
+            self.testoutputs.update({r_category:[1,1]})
+        elif result != r_category and not(r_category in self.testoutputs):
+            self.testoutputs.update({r_category:[0,1]})
+        # Test category exists, update key
+        elif result == r_category:
+            self.testoutputs.update({r_category:[ self.testoutputs[r_category][0]+1 , self.testoutputs[r_category][1]+1 ]})
+        else:
+            self.testoutputs.update({r_category:[ self.testoutputs[r_category][0] , self.testoutputs[r_category][1]+1 ]})
+
+    def print_test_outputs(self):
+        print('{:29s} {:10s} {:10s} {:9s} '.format("category", "n_correct", "n_tot","Percent"))
+        for category in self.testoutputs:
+            n_correct, n_tot = self.testoutputs[category]
+            print('{:29s} {:2f} {:2f} {:2f} '.format(category, n_correct, n_tot,n_correct/n_tot))
+
+    def return_results(self,results):
+        pass
 
 def argmax(lst):
     return lst.index(max(lst))
