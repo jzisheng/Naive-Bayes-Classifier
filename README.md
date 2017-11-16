@@ -39,7 +39,10 @@ And with a m-est classifier
 ``nbClassify.py 20ng-train-stemmed.txt 20ng-test-stemmed.txt mest``
 
 You will find if you run the raw classifier, it results in a very poor score. This is because a raw Naive Bayes classification works by first calculating the conditional probabilities of each word given a category. This is a simple formula where we count the number of times a word appears in a newsgroup, and divide it by the total number of words in each category.
-![alt text](https://github.com/jzisheng/Naive-Bayes-Classifier/equationImages/CodeCogsEqn.gif)
+
+![alt text](https://github.com/jzisheng/Naive-Bayes-Classifier/blob/master/equationImages/raw.gif?raw=true)
+
+Then, in order to calculate the probability of a category given a string of words, we simply calculate the product of the words probability of being in that category.
 
 ### Test Results
 
