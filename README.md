@@ -1,6 +1,6 @@
 # Naive Bayes Classifier
 
-Text classification for the 20 Newsgroups Kaggle Dataset. Created for a Intro to Artificial Intelligence class at Bard College.
+Text classification for the 20 Newsgroups Kaggle Dataset. Created for an Artificial Intelligence class at Bard College.
 
 ## Getting Started
 
