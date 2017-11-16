@@ -25,7 +25,7 @@ Installation process is simply cloning this repository. Below is a list of the f
 
 The way data text data is stored corresponding to their category is as follows: the first word of each line represents what newsgroup the string of words belong to - and the the string of words following behind it are the words in the newsgroup.
 ```
-alt.atheism	alt atheism faq atheist resourc archiv name atheism resourc alt atheism archiv name resourc last  ... 
+alt.atheism	alt atheism faq atheist resourc archiv name atheism resourc alt atheism archiv name  ... 
 ```
 
 ### Test Results
