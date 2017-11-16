@@ -15,7 +15,6 @@ $ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/maste
 $ export PATH=/usr/local/bin:/usr/local/sbin:$PATH
 $ brew install python3
 ```
-This may take a minute or two
 
 ### Installing
 
