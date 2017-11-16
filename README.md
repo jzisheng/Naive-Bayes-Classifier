@@ -42,7 +42,7 @@ Implementation of Inverse Document Frequency to weigh the probabilities correspo
 
 ## Authors
 
-* **Zisheng Jason Chang** - *Creator* - [jzisheng](https://github.com/jzisheng)
+* **Zisheng Jason Chang** - [jzisheng](https://github.com/jzisheng)
 
 ## Acknowledgments
 
