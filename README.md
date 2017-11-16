@@ -38,13 +38,26 @@ And with a m-est classifier
 
 ``nbClassify.py 20ng-train-stemmed.txt 20ng-test-stemmed.txt mest``
 
+##### Raw Classifying
+
 You will find if you run the raw classifier, it results in a very poor score. This is because a raw Naive Bayes classification works by first calculating the conditional probabilities of each word given a category. This is a simple formula where we count the number of times a word appears in a newsgroup, and divide it by the total number of words in each category.
 
 ![alt text](https://github.com/jzisheng/Naive-Bayes-Classifier/blob/master/equationImages/raw.gif?raw=true)
 
-Then, in order to calculate the probability of a category given a string of words, we simply calculate the product of the words probability of being in that category.
+`n_w` represents the number of times the given word appears in the newsgroup `n`. Then, in order to calculate the probability of a category given a string of words, we simply calculate the product of the string of words probability of being in that category.
 
-### Test Results
+![alt text](https://github.com/jzisheng/Naive-Bayes-Classifier/blob/master/equationImages/p_category.gif?raw=true)
+
+##### Mest Classifying
+
+The main difference between raw classification and mest classification is that mest classification includes a smoothing factor. Note that for raw classification, if the probability of a test word given a category is `0`, it reduces the entire newsgroup's probability to `0` - which is not what we want.
+
+In order to solve this issue, m-est classificiation introduces a smoothing factor to avoid the probability of a word given a category being setn to `0`. `1` is added to the numerator, and the size of the vocabulary added to the denominator. Where `n_k` represents the number of times the word appears in the category, `n` represents the number of words in the category, and `|vocab|` represents the total number of words in the vocabulary.
+
+
+![alt text](https://github.com/jzisheng/Naive-Bayes-Classifier/blob/master/equationImages/mestprob.gif?raw=true)
+
+#### Test Results
 
 Results of running the test file on the classifier trained using the training dataset should result in the following results for each category.
 
