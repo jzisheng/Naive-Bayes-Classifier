@@ -1,6 +1,6 @@
 # Naive Bayes Classifier
 
-Text classification for the 20 Newsgroups Kaggle Dataset. Created for an Artificial Intelligence class at Bard College.
+Text classification for the 20 Newsgroups Kaggle Dataset.
 
 ## Getting Started
 
@@ -48,4 +48,4 @@ Implementation of Inverse Document Frequency to weigh the probabilities correspo
 
 ## Acknowledgments
 
-* Much thanks to Sven Anderson for lecturing this course
+* Much thanks to Sven Anderson for lecturing the Artficial Intelligence Course and organizing this.
