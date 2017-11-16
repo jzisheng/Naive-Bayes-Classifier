@@ -1,6 +1,6 @@
 # Naive Bayes Classifier
 
-Text classification for the 20 Newsgroups Kaggle Dataset. Created for an Artificial Intelligence class at Bard College.
+Text classification for the 20 Newsgroups Kaggle Dataset.
 
 ## Getting Started
 
@@ -19,6 +19,9 @@ $ brew install python3
 ### Installing
 
 Installation process is simply cloning this repository. Below is a list of the files in the repository, as well as a short explanation describing the purpose of the file.
+* `nbClassify.py` - Main python script that trains and tests dataset. Instructions on running this file is in the next section.
+* `20ng-test-stemmed.txt` - Subset of kaggle `20 Newsgroups` dataset that is used for testing the classifier
+* `20ng-test-stemmed.txt` - Subset of kaggle `20 Newsgroups` dataset that is used for training the classifier
 
 ## Running the tests
 
@@ -27,9 +30,43 @@ The way data text data is stored corresponding to their category is as follows: 
 alt.atheism	alt atheism faq atheist resourc archiv name atheism resourc alt atheism archiv name  ... 
 ```
 
+The current classifier has two ways to calculate the probability of a category given a string of words. In order to test using a raw naive bayes classifier
+
+``nbClassify.py 20ng-train-stemmed.txt 20ng-test-stemmed.txt raw``
+
+And with a m-est classifier
+
+``nbClassify.py 20ng-train-stemmed.txt 20ng-test-stemmed.txt mest``
+
+You will find if you run the raw classifier, it results in a very poor score. This is because a raw Naive Bayes classification works by first calculating the conditional probabilities of each word given a category. This is a simple formula where we count the number of times a word appears in a newsgroup, and divide it by the total number of words in each category.
+
 ### Test Results
 
-Results of running the test file on the classifier trained using the training dataset should result in the following results for each category...
+Results of running the test file on the classifier trained using the training dataset should result in the following results for each category.
+
+| Category                 | Number Correct  | Total | Percent Correct  |
+|--------------------------|------------|-------|----------|
+| alt.atheism              | 244        | 319   | 0.76489  |
+| comp.graphics            | 317        | 389   | 0.81491  |
+| comp.os.ms-windows.misc  | 249        | 394   | 0.63198  |
+| comp.sys.ibm.pc.hardware | 290        | 392   | 0.739796 |
+| comp.sys.mac.hardware    | 297        | 385   | 0.771429 |
+| comp.windows.x           | 305        | 392   | 0.778061 |
+| misc.forsale             | 265        | 390   | 0.679487 |
+| rec.autos                | 371        | 395   | 0.939241 |
+| rec.motorcycles          | 372        | 398   | 0.934673 |
+| rec.sport.baseball       | 365        | 397   | 0.919395 |
+| rec.sport.hockey         | 388        | 399   | 0.972431 |
+| sci.crypt                | 377        | 396   | 0.95202  |
+| sci.electronics          | 270        | 393   | 0.687023 |
+| sci.med                  | 339        | 396   | 0.856061 |
+| sci.space                | 351        | 394   | 0.890863 |
+| soc.religion.christian   | 375        | 398   | 0.942211 |
+| talk.politics.guns       | 335        | 364   | 0.92033  |
+| talk.politics.mideast    | 335        | 376   | 0.890957 |
+| talk.politics.misc       | 180        | 310   | 0.580645 |
+| talk.religion.misc       | 99         | 251   | 0.394422 |
+| **Average Correct:**         | **80.3%** |       |          |
 
 ### Next steps
 
@@ -45,4 +82,4 @@ Implementation of Inverse Document Frequency to weigh the probabilities correspo
 
 ## Acknowledgments
 
-* Much thanks to Sven Anderson for lecturing this course, and cleaning up the dataset and formatting it for usage in the course.
+* Much thanks to Sven Anderson for lecturing the Artficial Intelligence Course and organizing this.
