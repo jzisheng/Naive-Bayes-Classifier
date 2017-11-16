@@ -30,11 +30,21 @@ The way data text data is stored corresponding to their category is as follows: 
 alt.atheism	alt atheism faq atheist resourc archiv name atheism resourc alt atheism archiv name  ... 
 ```
 
+The current classifier has two ways to calculate the probability of a category given a string of words. In order to test using a raw naive bayes classifier
+
+``nbClassify.py 20ng-train-stemmed.txt 20ng-test-stemmed.txt raw``
+
+And with a m-est classifier
+
+``nbClassify.py 20ng-train-stemmed.txt 20ng-test-stemmed.txt mest``
+
+You will find if you run the raw classifier, it results in a very poor score. This is because a raw Naive Bayes classification works by first calculating the conditional probabilities of each word given a category. This is a simple formula where we count the number of times a word appears in a newsgroup, and divide it by the total number of words in each category.
+
 ### Test Results
 
 Results of running the test file on the classifier trained using the training dataset should result in the following results for each category.
 
-| Category                 | Number Correct   | Total Number | Percent Correct  |
+| Category                 | Number Correct  | Total | Percent Correct  |
 |--------------------------|------------|-------|----------|
 | alt.atheism              | 244        | 319   | 0.76489  |
 | comp.graphics            | 317        | 389   | 0.81491  |
@@ -56,7 +66,7 @@ Results of running the test file on the classifier trained using the training da
 | talk.politics.mideast    | 335        | 376   | 0.890957 |
 | talk.politics.misc       | 180        | 310   | 0.580645 |
 | talk.religion.misc       | 99         | 251   | 0.394422 |
-| Average Correct:         | 0.80304125 |       |          |
+| **Average Correct:**         | **80.3%** |       |          |
 
 ### Next steps
 
