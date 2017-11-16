@@ -34,7 +34,7 @@ alt.atheism	alt atheism faq atheist resourc archiv name atheism resourc alt athe
 
 Results of running the test file on the classifier trained using the training dataset should result in the following results for each category.
 
-| category                 | n_correc   | n_tot | Percent  |
+| Category                 | Number Correct   | Total Number | Percent Correct  |
 |--------------------------|------------|-------|----------|
 | alt.atheism              | 244        | 319   | 0.76489  |
 | comp.graphics            | 317        | 389   | 0.81491  |
