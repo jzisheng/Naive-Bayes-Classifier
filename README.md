@@ -32,7 +32,31 @@ alt.atheism	alt atheism faq atheist resourc archiv name atheism resourc alt athe
 
 ### Test Results
 
-Results of running the test file on the classifier trained using the training dataset should result in the following results for each category...
+Results of running the test file on the classifier trained using the training dataset should result in the following results for each category.
+
+| category                 | n_correc   | n_tot | Percent  |
+|--------------------------|------------|-------|----------|
+| alt.atheism              | 244        | 319   | 0.76489  |
+| comp.graphics            | 317        | 389   | 0.81491  |
+| comp.os.ms-windows.misc  | 249        | 394   | 0.63198  |
+| comp.sys.ibm.pc.hardware | 290        | 392   | 0.739796 |
+| comp.sys.mac.hardware    | 297        | 385   | 0.771429 |
+| comp.windows.x           | 305        | 392   | 0.778061 |
+| misc.forsale             | 265        | 390   | 0.679487 |
+| rec.autos                | 371        | 395   | 0.939241 |
+| rec.motorcycles          | 372        | 398   | 0.934673 |
+| rec.sport.baseball       | 365        | 397   | 0.919395 |
+| rec.sport.hockey         | 388        | 399   | 0.972431 |
+| sci.crypt                | 377        | 396   | 0.95202  |
+| sci.electronics          | 270        | 393   | 0.687023 |
+| sci.med                  | 339        | 396   | 0.856061 |
+| sci.space                | 351        | 394   | 0.890863 |
+| soc.religion.christian   | 375        | 398   | 0.942211 |
+| talk.politics.guns       | 335        | 364   | 0.92033  |
+| talk.politics.mideast    | 335        | 376   | 0.890957 |
+| talk.politics.misc       | 180        | 310   | 0.580645 |
+| talk.religion.misc       | 99         | 251   | 0.394422 |
+| Average Correct:         | 0.80304125 |       |          |
 
 ### Next steps
 
