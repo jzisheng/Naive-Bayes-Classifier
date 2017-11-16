@@ -48,7 +48,7 @@ You will find if you run the raw classifier, it results in a very poor score. Th
 
 ![alt text](https://github.com/jzisheng/Naive-Bayes-Classifier/blob/master/equationImages/p_category.gif?raw=true)
 
-##### Mest Classifying
+#### Mest Classifying
 
 The main difference between raw classification and mest classification is that mest classification includes a smoothing factor. Note that for raw classification, if the probability of a test word given a category is `0`, it reduces the entire newsgroup's probability to `0` - which is not what we want.
 
@@ -57,7 +57,7 @@ In order to solve this issue, m-est classificiation introduces a smoothing facto
 
 ![alt text](https://github.com/jzisheng/Naive-Bayes-Classifier/blob/master/equationImages/mestprob.gif?raw=true)
 
-#### Test Results
+### Test Results
 
 Results of running the test file on the classifier trained using the training dataset should result in the following results for each category.
 
