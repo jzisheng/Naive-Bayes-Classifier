@@ -19,6 +19,9 @@ $ brew install python3
 ### Installing
 
 Installation process is simply cloning this repository. Below is a list of the files in the repository, as well as a short explanation describing the purpose of the file.
+* `nbClassify.py` - Main python script that trains and tests dataset. Instructions on running this file is in the next section.
+* `20ng-test-stemmed.txt` - Subset of kaggle `20 Newsgroups` dataset that is used for testing the classifier
+* `20ng-test-stemmed.txt` - Subset of kaggle `20 Newsgroups` dataset that is used for training the classifier
 
 ## Running the tests
 
@@ -45,4 +48,4 @@ Implementation of Inverse Document Frequency to weigh the probabilities correspo
 
 ## Acknowledgments
 
-* Much thanks to Sven Anderson for lecturing this course, and cleaning up the dataset and formatting it for usage in the course.
+* Much thanks to Sven Anderson for lecturing this course
